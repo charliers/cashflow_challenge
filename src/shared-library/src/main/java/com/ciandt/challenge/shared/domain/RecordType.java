@@ -1,7 +1,7 @@
 package com.ciandt.challenge.shared.domain;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * Tipo do lançamento financeiro: - `CREDIT`: entrada de recursos - `DEBIT`: saída de recursos 

@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -19,6 +21,7 @@ import java.util.UUID;
 @Setter
 @Data
 public class FinancialRecord implements Serializable  {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @JsonProperty("id")

@@ -1,17 +1,17 @@
 package com.ciandt.challenge.shared.model;
 
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
-import java.io.Serializable;
-
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ErrorResponse
@@ -20,17 +20,18 @@ import com.fasterxml.jackson.annotation.Nulls;
 @Setter
 @Getter
 public class ErrorResponse  implements Serializable  {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @JsonProperty("code")
   @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
   @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
-  private String code = null;
+  private String code;
 
   @JsonProperty("message")
   @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
   @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
-  private String message = null;
+  private String message;
 
   @JsonProperty("details")
   private List<ErrorResponseDetails> details = null;
