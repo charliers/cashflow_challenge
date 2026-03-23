@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: consolidator-cashflow-service
+  cloud:
+    gcp:
+      project-id: SEU_PROJECT_ID
+      credentials:
+        # Em produção, ideal é usar ADC (não setar arquivo aqui!!!!).
+        # Para desenvolvimento local:
+        location: file:/caminho/para/credenciais.json
+      spanner:
+        instance-id: SEU_INSTANCE_ID
+        database: SEU_DATABASE_NAME
+      pubsub:
+        # configs opcionais de subscriber
+        subscriber:
+          parallel-pull-count: 2
+          executor-threads: 4

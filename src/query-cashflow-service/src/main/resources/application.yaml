@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: query-cashflow-service
+
+  threads:
+    virtual:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

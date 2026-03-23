@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: command-cashflow-service
+  cloud:
+    gcp:
+      project-id: SEU_PROJECT_ID
+      credentials:
+        # Em produção, ideal é usar ADC (não setar arquivo aqui!!!!).
+        # Para desenvolvimento local:
+        location: file:/caminho/para/credenciais.json
+      spanner:
+        instance-id: SEU_INSTANCE_ID
+        database: SEU_DATABASE_NAME

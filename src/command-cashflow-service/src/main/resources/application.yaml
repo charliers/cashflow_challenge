@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: command-cashflow-service
+
+  threads:
+    virtual:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
