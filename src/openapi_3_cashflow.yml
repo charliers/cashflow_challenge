@@ -1,0 +1,556 @@
+openapi: 3.0.3
+info:
+  title: Cashflow API
+  description: >
+    API para gerenciamento de lançamentos financeiros de débito e crédito.
+    Permite criar e consultar registros com filtros por período e tipo de lançamento.
+  version: 1.0.0
+  contact:
+    name: Arquitetura de Soluções
+    email: carlos.oliveira.ko@gmail.com
+
+servers:
+  - url: https://api.cashflow.com/cashflow
+    description: Produção
+  - url: https://api-staging.cashflow.com/cashflow
+    description: Staging
+  - url: http://localhost/cashflow
+    description: Dev
+
+tags:
+  - name: Records
+    description: Operações sobre lançamentos financeiros
+  - name: Refunds
+    description: Operações de estorno de lançamentos financeiros
+
+paths:
+
+  /records:
+    post:
+      tags:
+        - Records
+      operationId: createRecord
+      summary: Criar lançamento financeiro
+      description: >
+        Cria um novo lançamento financeiro do tipo crédito ou débito.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRecordRequest'
+            examples:
+              credit:
+                summary: Lançamento de crédito
+                value:
+                  type: CREDIT
+                  amount: 1500.00
+                  description: "Recebimento de fatura #1234"
+                  refDate: "2026-03-20"
+              debit:
+                summary: Lançamento de débito
+                value:
+                  type: DEBIT
+                  amount: 350.75
+                  description: "Pagamento de fornecedor"
+                  refDate: "2026-03-21"
+      responses:
+        '201':
+          description: Lançamento criado com sucesso
+          # Nota: Avaliar se é interessante voltar a url para consulta do registro criado no header Location ou se o corpo da resposta já é suficiente para isso.
+          #headers:
+          #  Location:
+          #    description: URL do recurso criado
+          #    schema:
+          #      type: string
+          #      example: /cashflow/records/2026-03-20/550e8400-e29b-41d4-a716-446655440001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      tags:
+        - Records
+      operationId: listRecords
+      summary: Pesquisar lançamentos financeiros
+      description: >
+        Retorna uma lista paginada de lançamentos financeiros com suporte a filtros
+        por período de datas de referência e tipo de lançamento.
+      parameters:
+        - $ref: '#/components/parameters/DateFrom'
+        - $ref: '#/components/parameters/DateTo'
+        - $ref: '#/components/parameters/TypeFilter'
+        - $ref: '#/components/parameters/PageSize'
+      # Nota: Evolução futura para incluir o objeto original no atributo refundToId, permitindo ao consumidor identificar facilmente quais lançamentos são estornos e acessar os detalhes do lançamento original sem necessidade de chamadas adicionais.
+      responses:
+        '200':
+          description: Lista de lançamentos retornada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordListResponse'
+              examples:
+                mixed:
+                  summary: Resultado com créditos e débitos
+                  value:
+                    data:
+                      - id: "550e8400-e29b-41d4-a716-446655440000"
+                        type: CREDIT
+                        amount: 1500.00
+                        description: "Recebimento de fatura #1234"
+                        refDate: "2026-03-20"
+                        createdAt: "2026-03-20T10:00:00Z"
+                        updatedAt: "2026-03-20T10:00:00Z"
+                        refundToId: null
+                      - id: "550e8400-e29b-41d4-a716-446655440001"
+                        type: DEBIT
+                        amount: 350.75
+                        description: "Pagamento de fornecedor"
+                        refDate: "2026-03-21"
+                        createdAt: "2026-03-21T08:30:00Z"
+                        updatedAt: "2026-03-21T08:30:00Z"
+                        refundToId: null
+                    pagination:
+                      pageSize: 20
+                      totalCount: 47
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Nota: Validar se usar a PK da tabela nesse GET faz sentido, pois a pesquisa somente por ID deixa mais propenso a ataque de enumeração de registros, existe atenuante pelo modo utilizado para criar os IDs
+  #/records/{refDate}/{id}:
+  /records/{id}:
+    get:
+      tags:
+        - Records
+      operationId: getRecord
+      summary: Consultar lançamento por ID
+      description: >
+        Retorna os detalhes de um lançamento financeiro específico.
+      # Nota: Simplificando agora, mas ficará como evolução futura a possibilidade de consulta pela PK da tabela, que é composta por `refDate` e `id`. A ideia é dificultar ataques de enumeração de IDs, forçando o consumidor a conhecer a data de referência para conseguir consultar um lançamento específico.
+      #  Ambos `refDate` e `id` são necessários pois formam a chave primária composta da tabela.
+      parameters:
+      #  - $ref: '#/components/parameters/RefDatePath'
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Lançamento encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /records/{refDate}/{id}/refund:
+    post:
+      tags:
+        - Refunds
+      operationId: refundRecord
+      summary: Estornar um lançamento financeiro
+      description: >
+        Cria um lançamento de estorno para o lançamento identificado por `refDate` e `id`.
+
+
+        Regras de negócio aplicadas:
+
+        - O lançamento original deve existir.
+
+        - Um lançamento já estornado não pode ser estornado novamente (idempotência de estorno).
+
+        - O lançamento de estorno terá o tipo oposto ao original: `DEBIT` origina um estorno `CREDIT` e vice-versa.
+
+        - O valor do estorno será igual ao valor do lançamento original, a menos que um valor parcial seja explicitamente informado no corpo da requisição.
+
+        - O campo `refundToId` do novo lançamento será automaticamente preenchido com o `id` do lançamento original.
+      parameters:
+        - $ref: '#/components/parameters/RefDatePath'
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRecordRequest'
+            examples:
+              full_refund:
+                summary: Estorno total
+                value:
+                  amount: null
+                  description: "Estorno total referente à devolução de item"
+              partial_refund:
+                summary: Estorno parcial
+                value:
+                  amount: 100.00
+                  description: "Estorno parcial referente à devolução de item"
+
+      responses:
+        '201':
+          description: Estorno criado com sucesso
+          # Nota: Mesma situação do endpoint de criação de lançamento, avaliar se é interessante retornar a URL para consulta do lançamento de estorno criado no header Location ou se o corpo da resposta já é suficiente para isso. Considerando que o corpo da resposta já traz os detalhes do lançamento de estorno criado, incluindo seu ID, a URL pode ser facilmente construída pelo consumidor sem necessidade de retorno no header.
+          #headers:
+          #  Location:
+          #    description: URL do lançamento de estorno criado
+          #    schema:
+          #      type: string
+          #      example: /cashflow/records/2026-03-23/660f9511-f30c-52e5-b827-557766551111
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundRecordResponse'
+              examples:
+                full_refund_response:
+                  summary: Resposta de estorno total
+                  value:
+                    refund:
+                      id: "660f9511-f30c-52e5-b827-557766551111"
+                      type: CREDIT
+                      amount: 350.75
+                      description: "Estorno do lançamento 550e8400-e29b-41d4-a716-446655440001"
+                      refDate: "2026-03-23"
+                      createdAt: "2026-03-23T14:00:00Z"
+                      updatedAt: "2026-03-23T14:00:00Z"
+                      refundToId: "550e8400-e29b-41d4-a716-446655440001"
+                    original:
+                      id: "550e8400-e29b-41d4-a716-446655440001"
+                      type: DEBIT
+                      amount: 350.75
+                      description: "Pagamento de fornecedor"
+                      refDate: "2026-03-21"
+                      createdAt: "2026-03-21T08:30:00Z"
+                      updatedAt: "2026-03-23T14:00:00Z"
+                      refundToId: null
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+
+  parameters:
+
+    DateFrom:
+      name: dateFrom
+      in: query
+      required: false
+      description: Data de início do período de referência (inclusive). Formato ISO 8601 `YYYY-MM-DD`.
+      schema:
+        type: string
+        format: date
+        example: "2026-03-01"
+
+    DateTo:
+      name: dateTo
+      in: query
+      required: false
+      description: Data de fim do período de referência (inclusive). Formato ISO 8601 `YYYY-MM-DD`.
+      schema:
+        type: string
+        format: date
+        example: "2026-03-31"
+
+    TypeFilter:
+      name: type
+      in: query
+      required: false
+      description: Filtra lançamentos pelo tipo. Quando omitido, retorna todos os tipos.
+      schema:
+        $ref: '#/components/schemas/RecordType'
+
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: Quantidade de registros por página. Padrão 20, máximo 100.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+        example: 20
+
+    RefDatePath:
+      name: refDate
+      in: path
+      required: true
+      description: Data de referência do lançamento. Formato ISO 8601 `YYYY-MM-DD`.
+      schema:
+        type: string
+        format: date
+        example: "2026-03-20"
+
+    IdPath:
+      name: id
+      in: path
+      required: true
+      description: Identificador UUID do lançamento.
+      schema:
+        type: string
+        format: uuid
+        example: "550e8400-e29b-41d4-a716-446655440000"
+
+  schemas:
+
+    RecordType:
+      type: string
+      enum:
+        - CREDIT
+        - DEBIT
+      description: >
+        Tipo do lançamento financeiro:
+        - `CREDIT`: entrada de recursos
+        - `DEBIT`: saída de recursos
+
+    CreateRecordRequest:
+      type: object
+      required:
+        - type
+        - amount
+        - refDate
+      properties:
+        type:
+          $ref: '#/components/schemas/RecordType'
+        amount:
+          type: number
+          format: decimal
+          minimum: 0.01
+          description: Valor do lançamento. Deve ser positivo e maior que zero.
+          example: 1500.00
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Descrição opcional do lançamento.
+          example: "Recebimento de fatura #1234"
+        refDate:
+          type: string
+          format: date
+          description: Data de referência do lançamento no formato ISO 8601 `YYYY-MM-DD`.
+          example: "2026-03-20"
+
+    RefundRecordRequest:
+      type: object
+      description: >
+        Corpo opcional para customizar o estorno. Quando enviado vazio ou omitido,
+        o estorno será total, replicando o valor e usando a data atual como `refDate`.
+      properties:
+        amount:
+          type: number
+          format: decimal
+          minimum: 0.01
+          nullable: true
+          description: >
+            Valor do estorno. Quando informado, deve ser menor ou igual ao valor
+            do lançamento original (estorno parcial). Quando omitido, o valor
+            total do lançamento original será estornado.
+          example: 100.00
+        description:
+          type: string
+          maxLength: 500
+          nullable: false
+          description: >
+            Descrição customizada do estorno. Quando omitida, será gerada
+            automaticamente no formato: "Estorno do lançamento {id}".
+          example: "Estorno parcial referente à devolução de item"
+
+    RecordResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identificador único do lançamento.
+          example: "550e8400-e29b-41d4-a716-446655440001"
+        type:
+          $ref: '#/components/schemas/RecordType'
+        amount:
+          type: number
+          format: decimal
+          description: Valor do lançamento.
+          example: 1500.00
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Descrição do lançamento.
+          example: "Recebimento de fatura #1234"
+        refDate:
+          type: string
+          format: date
+          description: Data de referência do lançamento.
+          example: "2026-03-20"
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp de criação do registro.
+          example: "2026-03-20T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp da última atualização do registro.
+          example: "2026-03-20T10:00:00Z"
+        refundToId:
+          type: string
+          format: uuid
+          nullable: true
+          description: UUID do lançamento original estornado, se aplicável.
+          example: null
+
+    RefundRecordResponse:
+      type: object
+      description: >
+        Resposta do estorno contendo tanto o lançamento de estorno recém-criado
+        quanto o lançamento original, permitindo ao consumidor confirmar ambos
+        os estados em uma única chamada.
+      properties:
+        refund:
+          $ref: '#/components/schemas/RecordResponse'
+        original:
+          $ref: '#/components/schemas/RecordResponse'
+
+    RecordListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecordResponse'
+          description: Lista de lançamentos retornados.
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          description: Tamanho da página utilizado na consulta.
+          example: 20
+        nextPageToken:
+          type: string
+          nullable: true
+          description: Token para buscar a próxima página. Nulo quando não há mais páginas.
+          example: "eyJyZWZEYXRlIjoiMjAyNi0wMy0yMSIsImlkIjoiNTUwZTg0MDAifQ=="
+        totalCount:
+          type: integer
+          description: Total de registros encontrados para os filtros aplicados.
+          example: 47
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Código de erro legível por máquina.
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: Mensagem de erro legível por humano.
+          example: "O campo 'amount' deve ser maior que zero."
+        details:
+          type: array
+          nullable: true
+          description: Lista de erros detalhados, útil em erros de validação.
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "amount"
+              issue:
+                type: string
+                example: "Valor deve ser maior que 0.01"
+
+  responses:
+
+    BadRequest:
+      description: Requisição inválida. Parâmetros ausentes ou com formato incorreto.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "BAD_REQUEST"
+            message: "Parâmetros inválidos na requisição."
+            details:
+              - field: "amount"
+                issue: "Valor deve ser maior que 0.01"
+
+    UnprocessableEntity:
+      description: >
+        Entidade não processável. A requisição está bem formada mas viola
+        regras de negócio — por exemplo, valor de estorno parcial superior
+        ao valor do lançamento original.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "UNPROCESSABLE_ENTITY"
+            message: "O valor do estorno não pode ser superior ao valor do lançamento original."
+            details: null
+
+    NotFound:
+      description: Lançamento(s) não encontrado(s) para os identificadores informados.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "NOT_FOUND"
+            message: "Lançamento(s) não encontrado(s)."
+            details: null
+
+    Conflict:
+      description: >
+        Conflito de estado. O lançamento já possui um estorno registrado
+        e não pode ser estornado novamente.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "ALREADY_REFUNDED"
+            message: "Este lançamento já foi estornado e não pode ser estornado novamente."
+            details:
+              - field: "id"
+                issue: "Lançamento 550e8400-e29b-41d4-a716-446655440001 já possui estorno vinculado."
+
+    InternalServerError:
+      description: Erro interno inesperado no servidor.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "INTERNAL_SERVER_ERROR"
+            message: "Ocorreu um erro inesperado. Tente novamente mais tarde."
+            details: null
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtido via fluxo de autenticação OAuth 2.0.
+
+security:
+  - BearerAuth: []
