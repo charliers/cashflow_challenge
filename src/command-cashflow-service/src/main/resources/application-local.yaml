@@ -12,7 +12,18 @@ spring:
         emulator-host: localhost:9010
       pubsub:
         emulator-host: localhost:8085
+        batching:
+          enabled: false
+        enable-message-ordering: true
+        executor-wait-for-tasks-to-complete-on-shutdown: false
 server:
   port: 8080
   servlet:
     context-path: /
+
+  logging:
+    level:
+      org:
+        springframework:
+          context: DEBUG
+          integration: DEBUG

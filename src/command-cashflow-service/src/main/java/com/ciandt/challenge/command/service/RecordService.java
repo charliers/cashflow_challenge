@@ -1,9 +1,11 @@
 package com.ciandt.challenge.command.service;
 
+import com.ciandt.challenge.command.config.PubSubConfig;
 import com.ciandt.challenge.command.repository.RecordSpannerRepository;
-import com.ciandt.challenge.shared.mapper.RecordMapper;
+import com.ciandt.challenge.command.util.Tools;
 import com.ciandt.challenge.shared.domain.FinancialRecord;
 import com.ciandt.challenge.shared.domain.RecordType;
+import com.ciandt.challenge.shared.mapper.RecordMapper;
 import com.ciandt.challenge.shared.model.entity.RecordEntity;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ public class RecordService implements com.ciandt.challenge.command.iface.RecordS
     @Autowired
     private RecordSpannerRepository repository;
 
+    @Autowired
+    private PubSubConfig.PubSubOutboundGateway messagingGateway;
+
     public RecordService(){}
 
     @Override
@@ -29,6 +34,7 @@ public class RecordService implements com.ciandt.challenge.command.iface.RecordS
 
         RecordEntity newRecord = RecordMapper.toEntity(financialRecord);
         repository.save(newRecord);
+        messagingGateway.sendToPubSub(Tools.toJson(financialRecord));
 
     }
 

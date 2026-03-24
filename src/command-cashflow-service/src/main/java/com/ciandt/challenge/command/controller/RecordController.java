@@ -1,9 +1,9 @@
 package com.ciandt.challenge.command.controller;
 
 import com.ciandt.challenge.command.service.RecordService;
-import com.ciandt.challenge.shared.mapper.RecordMapper;
 import com.ciandt.challenge.shared.domain.FinancialRecord;
 import com.ciandt.challenge.shared.domain.RecordType;
+import com.ciandt.challenge.shared.mapper.RecordMapper;
 import com.ciandt.challenge.shared.model.dto.CreateRecordRequest;
 import com.ciandt.challenge.shared.model.dto.PaginationResponse;
 import com.ciandt.challenge.shared.model.dto.RecordListResponse;
@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
