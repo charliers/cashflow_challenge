@@ -8,19 +8,20 @@ import com.ciandt.challenge.shared.model.dto.CreateRecordRequest;
 import com.ciandt.challenge.shared.model.dto.PaginationResponse;
 import com.ciandt.challenge.shared.model.dto.RecordListResponse;
 import com.ciandt.challenge.shared.model.dto.RecordResponse;
+import com.google.cloud.Date;
+import com.google.cloud.Timestamp;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/cashflow/records")
+@RequestMapping("/api/v1/cashflow/records")
 public class RecordController {
 
     private final RecordService recordService;
@@ -33,14 +34,14 @@ public class RecordController {
     public ResponseEntity<RecordResponse> createRecord(
             @Valid @RequestBody CreateRecordRequest request
     ) {
-        OffsetDateTime now = OffsetDateTime.now();
+        Timestamp now = Timestamp.now();
 
         var financialRecord = new FinancialRecord();
         financialRecord.setId(UUID.randomUUID());
         financialRecord.setType(request.type());
         financialRecord.setAmount(request.amount());
         financialRecord.setDescription(request.description());
-        financialRecord.setRefDate(request.refDate());
+        financialRecord.setRefDate(Date.fromJavaUtilDate(request.refDate()));
         financialRecord.setCreatedAt(now);
         financialRecord.setUpdatedAt(now);
 

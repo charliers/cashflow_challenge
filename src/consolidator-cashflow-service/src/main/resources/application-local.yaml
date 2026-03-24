@@ -3,14 +3,15 @@ spring:
     name: consolidator-cashflow-service
   cloud:
     gcp:
-      project-id: SEU_PROJECT_ID
+      project-id: test-project
       credentials:
-        # Em produção, ideal é usar ADC (não setar arquivo aqui!!!!).
-        # Para desenvolvimento local:
-        location: file:/caminho/para/credenciais.json
+      # Em produção, ideal é usar ADC (não setar arquivo aqui!!!!).
       spanner:
-        instance-id: SEU_INSTANCE_ID
-        database: SEU_DATABASE_NAME
+        instance-id: test-instance
+        database: test-database
+        emulator:
+          enabled: true
+        emulator-host: localhost:9010
       pubsub:
         # configs opcionais de subscriber
         subscriber:

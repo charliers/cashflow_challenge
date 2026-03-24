@@ -1,13 +1,11 @@
 package com.ciandt.challenge.shared.mapper;
 
+import com.ciandt.challenge.shared.domain.FinancialRecord;
 import com.ciandt.challenge.shared.domain.RecordType;
 import com.ciandt.challenge.shared.model.entity.RecordEntity;
-import com.ciandt.challenge.shared.domain.FinancialRecord;
 import com.google.cloud.Date;
+
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.UUID;
 
 public class RecordEntityMapper {
 

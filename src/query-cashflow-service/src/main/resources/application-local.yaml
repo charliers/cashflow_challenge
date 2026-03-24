@@ -3,16 +3,14 @@ spring:
     name: query-cashflow-service
   cloud:
     gcp:
-      project-id: groovy-iris-490717-u0
+      project-id: test-project
       credentials:
-        # Em produção, ideal é usar ADC (não setar arquivo aqui!!!!).
-        # Para desenvolvimento local:
-        location: file:../../../../../../.config/gcloud/application_default_credentials.json
+      # Em produção, ideal é usar ADC (não setar arquivo aqui!!!!).
       spanner:
-        instance-id: my-certification-spanner-01
-        database: cashflowoltp
+        instance-id: test-instance
+        database: test-database
         emulator:
-          enabled: false
+          enabled: true
         emulator-host: localhost:9010
 server:
   port: 8081

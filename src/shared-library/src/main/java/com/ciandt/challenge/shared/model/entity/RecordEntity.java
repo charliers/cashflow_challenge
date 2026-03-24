@@ -1,12 +1,14 @@
 package com.ciandt.challenge.shared.model.entity;
 
+import com.google.cloud.Date;
+import com.google.cloud.Timestamp;
 import com.google.cloud.spring.data.spanner.core.mapping.Column;
 import com.google.cloud.spring.data.spanner.core.mapping.PrimaryKey;
 import com.google.cloud.spring.data.spanner.core.mapping.Table;
-import com.google.cloud.Date;
 import lombok.*;
+import lombok.extern.java.Log;
+
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -19,13 +21,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "records")
+@Log
 public class RecordEntity {
 
     /**
      * UUID do lançamento — segunda coluna da PK composta.
      * Armazenado como STRING(36) no Spanner.
      */
-    @PrimaryKey(keyOrder = 1)
+    @PrimaryKey()
     @Column(name = "id")
     private UUID id;
 
@@ -42,18 +45,18 @@ public class RecordEntity {
      * Data de referência
      * Usamos com.google.cloud.Date pois é o tipo nativo do Spanner para DATE.
      */
-    @Column(name = "ref_date")
+    @Column(name = "refdate")
     private Date refDate;
 
     /**
      * Spanner TIMESTAMP com allow_commit_timestamp=false.
      */
-    @Column(name = "created_at", spannerCommitTimestamp = false)
-    private OffsetDateTime createdAt;
+    @Column(name = "createdat", spannerCommitTimestamp = false)
+    private Timestamp createdAt;
 
-    @Column(name = "updated_at", spannerCommitTimestamp = true)
-    private OffsetDateTime updatedAt;
+    @Column(name = "updatedat", spannerCommitTimestamp = false)
+    private Timestamp updatedAt;
 
-    @Column(name = "refund_to_id")
+    @Column(name = "refundtoid")
     private UUID refundToId;
 }

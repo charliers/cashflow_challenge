@@ -1,7 +1,7 @@
 package com.ciandt.challenge.command.util;
 
-import com.ciandt.challenge.shared.model.dto.RecordResponse;
 import com.ciandt.challenge.shared.domain.FinancialRecord;
+import com.ciandt.challenge.shared.model.dto.RecordResponse;
 
 public class RecordMapper {
 
