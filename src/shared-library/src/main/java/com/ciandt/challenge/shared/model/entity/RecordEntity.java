@@ -28,7 +28,7 @@ public class RecordEntity {
      * UUID do lançamento — segunda coluna da PK composta.
      * Armazenado como STRING(36) no Spanner.
      */
-    @PrimaryKey()
+    @PrimaryKey
     @Column(name = "id")
     private UUID id;
 

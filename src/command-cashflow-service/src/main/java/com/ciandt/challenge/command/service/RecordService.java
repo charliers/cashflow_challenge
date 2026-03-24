@@ -1,6 +1,7 @@
 package com.ciandt.challenge.command.service;
 
 import com.ciandt.challenge.command.repository.RecordSpannerRepository;
+import com.ciandt.challenge.shared.mapper.RecordMapper;
 import com.ciandt.challenge.shared.domain.FinancialRecord;
 import com.ciandt.challenge.shared.domain.RecordType;
 import com.ciandt.challenge.shared.model.entity.RecordEntity;
@@ -26,20 +27,7 @@ public class RecordService implements com.ciandt.challenge.command.iface.RecordS
     @Override
     public void createRecord(FinancialRecord financialRecord) {
 
-        log.info("Creating record for financial record: " + financialRecord);
-
-        RecordEntity newRecord = new RecordEntity(
-                financialRecord.getId(),
-                financialRecord.getType().name(),
-                financialRecord.getAmount(),
-                financialRecord.getDescription(),
-                financialRecord.getRefDate(),
-                financialRecord.getCreatedAt(),
-                financialRecord.getUpdatedAt(),
-                null
-        );
-
-        log.info("Saving record for financial record: " + newRecord);
+        RecordEntity newRecord = RecordMapper.toEntity(financialRecord);
         repository.save(newRecord);
 
     }
@@ -56,7 +44,8 @@ public class RecordService implements com.ciandt.challenge.command.iface.RecordS
 
     @Override
     public Optional<FinancialRecord> getById(UUID id) {
-        return Optional.empty();
+        return repository.findById(id)
+                .map(RecordMapper::toFinancialRecord);
     }
 
     @Override

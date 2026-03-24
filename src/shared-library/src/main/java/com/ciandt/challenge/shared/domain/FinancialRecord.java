@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.google.cloud.Date;
-import com.google.cloud.Timestamp;
 import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -44,7 +45,7 @@ public class FinancialRecord implements Serializable  {
   @JsonProperty("refDate")
   @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
   @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
-  private Date refDate = null;
+  private LocalDate refDate = null;
 
   @JsonProperty("createdAt")
   @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent

@@ -10,6 +10,8 @@ spring:
         emulator:
           enabled: true
         emulator-host: localhost:9010
+      pubsub:
+        emulator-host: localhost:8085
 server:
   port: 8080
   servlet:

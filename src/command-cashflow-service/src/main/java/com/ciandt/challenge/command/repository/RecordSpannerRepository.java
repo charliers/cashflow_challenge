@@ -4,21 +4,23 @@ import com.ciandt.challenge.shared.model.entity.RecordEntity;
 import com.google.cloud.Date;
 import com.google.cloud.spring.data.spanner.repository.SpannerRepository;
 import com.google.cloud.spring.data.spanner.repository.query.Query;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface RecordSpannerRepository
-        extends SpannerRepository<RecordEntity, com.google.cloud.spring.data.spanner.core.mapping.PrimaryKey> {
+        extends SpannerRepository<RecordEntity, UUID> {
 
     /**
      * Busca por id apenas (sem refDate) — para o endpoint GET /records/{id}.
      */
-    @Query("SELECT * FROM records WHERE id = @id LIMIT 1")
-    Optional<RecordEntity> findById(@Param("id") String id);
+    //@Query("SELECT * FROM records WHERE id = @id LIMIT 1")
+    Optional<RecordEntity> findById(@Param("id") UUID id);
 
     /**
      * Listagem paginada com filtros opcionais por período e tipo.

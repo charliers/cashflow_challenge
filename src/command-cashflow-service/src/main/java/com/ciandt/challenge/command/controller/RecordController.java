@@ -1,20 +1,20 @@
 package com.ciandt.challenge.command.controller;
 
 import com.ciandt.challenge.command.service.RecordService;
-import com.ciandt.challenge.command.util.RecordMapper;
+import com.ciandt.challenge.shared.mapper.RecordMapper;
 import com.ciandt.challenge.shared.domain.FinancialRecord;
 import com.ciandt.challenge.shared.domain.RecordType;
 import com.ciandt.challenge.shared.model.dto.CreateRecordRequest;
 import com.ciandt.challenge.shared.model.dto.PaginationResponse;
 import com.ciandt.challenge.shared.model.dto.RecordListResponse;
 import com.ciandt.challenge.shared.model.dto.RecordResponse;
-import com.google.cloud.Date;
-import com.google.cloud.Timestamp;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -34,16 +34,8 @@ public class RecordController {
     public ResponseEntity<RecordResponse> createRecord(
             @Valid @RequestBody CreateRecordRequest request
     ) {
-        Timestamp now = Timestamp.now();
 
-        var financialRecord = new FinancialRecord();
-        financialRecord.setId(UUID.randomUUID());
-        financialRecord.setType(request.type());
-        financialRecord.setAmount(request.amount());
-        financialRecord.setDescription(request.description());
-        financialRecord.setRefDate(Date.fromJavaUtilDate(request.refDate()));
-        financialRecord.setCreatedAt(now);
-        financialRecord.setUpdatedAt(now);
+        FinancialRecord financialRecord = RecordMapper.toFinancialRecord(request);
 
         recordService.createRecord(financialRecord);
         RecordResponse response = RecordMapper.toResponse(financialRecord);
