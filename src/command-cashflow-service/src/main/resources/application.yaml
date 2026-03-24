@@ -6,6 +6,11 @@ spring:
     virtual:
       enabled: true
 
+server:
+  port: 8080
+  servlet:
+    context-path: /cashflow
+
 management:
   endpoints:
     web:

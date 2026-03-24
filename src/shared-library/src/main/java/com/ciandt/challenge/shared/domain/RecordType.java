@@ -10,7 +10,7 @@ public enum RecordType {
   CREDIT("CREDIT"),
     DEBIT("DEBIT");
 
-  private String value;
+  private final String value;
 
   RecordType(String value) {
     this.value = value;

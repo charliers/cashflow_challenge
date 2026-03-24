@@ -1,4 +1,4 @@
-package com.ciandt.challenge.query_cashflow_service;
+package com.ciandt.challenge.command;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -4,22 +4,21 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.OffsetDateTime;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import com.google.cloud.Date;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
-@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Data
+@EqualsAndHashCode
 public class FinancialRecord implements Serializable  {
   @Serial
   private static final long serialVersionUID = 1L;
@@ -45,7 +44,7 @@ public class FinancialRecord implements Serializable  {
   @JsonProperty("refDate")
   @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
   @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
-  private LocalDate refDate = null;
+  private Date refDate = null;
 
   @JsonProperty("createdAt")
   @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
