@@ -70,12 +70,12 @@ resource "google_spanner_database" "financial-records" {
         Id           UUID         NOT NULL DEFAULT (NEW_UUID()),
         Type         STRING(6)    NOT NULL,
         Amount       NUMERIC      NOT NULL,
-        Description  STRING(500)  NULL    ,
+        Description  STRING(500)          ,
         RefDate      DATE         NOT NULL,
-        CreatedAt    TIMESTAMP    NOT NULL OPTIONS (allow_commit_timestamp=true),
+        CreatedAt    TIMESTAMP    NOT NULL OPTIONS (allow_commit_timestamp=false),
         UpdatedAt    TIMESTAMP    NOT NULL OPTIONS (allow_commit_timestamp=true),
-        RefundToId   UUID         NULL
-      ) PRIMARY KEY (RefDate, Id)
+        RefundToId   UUID         
+      ) PRIMARY KEY (Id)
     EOT
     ,
     <<-EOT
@@ -84,8 +84,8 @@ resource "google_spanner_database" "financial-records" {
     EOT
     ,
     <<-EOT
-      CREATE INDEX IX_Records_CreatedAt
-      ON Records (CreatedAt DESC)
+      CREATE INDEX IX_Records_CreatedAt_Type
+      ON Records (CreatedAt DESC, Type)
     EOT
     ,
     <<-EOT
@@ -94,7 +94,7 @@ resource "google_spanner_database" "financial-records" {
         RefDate      DATE       NOT NULL,
         AmountCredit NUMERIC    NOT NULL,
         AmountDebit  NUMERIC    NOT NULL,
-        CreatedAt    TIMESTAMP  NOT NULL OPTIONS (allow_commit_timestamp=true),
+        CreatedAt    TIMESTAMP  NOT NULL OPTIONS (allow_commit_timestamp=false),
         UpdatedAt    TIMESTAMP  NOT NULL OPTIONS (allow_commit_timestamp=true)
       ) PRIMARY KEY (RefDate, Id)
     EOT
