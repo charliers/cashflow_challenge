@@ -21,11 +21,11 @@ Adotar **Google Cloud Spanner** como banco de dados principal do sistema.
 - ✓ Minimiza o trade-off clássico do **Teorema CAP**, oferecendo comportamento **CP** (consistência e tolerância a partições) com **disponibilidade próxima a AP**.  
 - ✓ Apresenta **custo inicial reduzido** em relação a PostgreSQL gerenciado para a **carga prevista** nesse projeto.  
 - ✓ Permite **escalabilidade automática** via **Processing Units**, simplificando o ajuste de capacidade para variações de carga.
-- ✓ Menor unidade de capacidade, 100 processing units, proverá **2.250 reads/s** e **350 writes/s** de capacidade de processamento
+- ✓ Menor unidade de capacidade, 100 processing units, disponibilizará o *capacity* de **2.250 leituras** e **350 escritas** por segundo.
 
 **Trade-offs**
 
-- ✗ Introduz **vendor lock-in** com a **Google Cloud**, tornando a portabilidade para outros provedores mais complexa.
+- ✗ Introduz **vendor lock-in** com a **Google Cloud**, tornando a portabilidade para outros provedores mais complexa, mas exequível por sua compatibilidade nativa com PostgreSQL.
 
 ---
 
@@ -90,7 +90,8 @@ Adotar **GKE Standard** no lugar do **GKE Autopilot**, utilizando **Committed Us
 - ✓ O modelo de **Resource-based CUD** exige **node pools com machine type fixo**, o que se alinha ao uso de **c2-standard-4** para otimizar custo.  
 - ✓ **c2-standard-4** é otimizada para workloads **compute-intensive**, adequando-se às características do processamento do projeto.  
 - ✓ Uso de **Container-Optimized OS (cos_containerd)**, sem custo de licença, reduz custos e melhora segurança e desempenho para containers.
-- ✓ Versatilidade no controle de replicaSet e autoscalling das aplicações com base em métricas colhidas diretamente destas
+- ✓ Versatilidade no controle de replicaSet e autoscalling das aplicações com base em métricas colhidas diretamente destas.
+- ✓ Possibilidade de utilizar Workload Identity para autenticação do cluster com os serviços Google Cloud, como o Cloud Spanner, eliminando a necessidade de configurações de credenciais nas aplicações.
 
 **Trade-offs**
 
@@ -100,4 +101,72 @@ Adotar **GKE Standard** no lugar do **GKE Autopilot**, utilizando **Committed Us
 
 ---
 
+## ADR-005 — Região principal GCP
+
+**Contexto**  
+Há necessidade de **controle estrito sobre os custos OpEx**, como modo de tornar a solução economicamente viável
+
+**Decisão**  
+Adotar **Iowa (us-central1)** como região principal do projeto.
+
+**Justificativa**
+
+- ✓ Região **Low CO2** o que impacta positivamente no custo dos serviços.  
+- ✓ Possuí 4 zonas para alta-disponibilidade.
+- ✓ Latência de acesso aos serviços é minimizada devido ao uso da rede interna Google Cloud.
+
+**Trade-offs**
+
+- ✗ Necessidade de ativar serviços em outras regiões, quando aplicável, por compliance legal (LGPD, GDPR, etc).
+- ✗ Billing efetuado em dólar americano (USD).
+
+---
+
+## ADR-006 — Autenticação Externa - Usuários
+
+**Contexto**  
+Todos os serviços oferecidos pela solução devem possuir mecanismos de segurança contra acesso não autorizado.
+
+**Decisão**  
+Adotar uso da solução **KeyCloak** de mercado como IDP do projeto.
+
+**Justificativa**
+
+- ✓ Solução de código aberto (open-source) para gerenciamento de identidade e acesso (IAM).
+- ✓ Centraliza a autenticação e autorização de usuários permitindo implementar Single Sign-On (SSO), login social (GitHub, Google, etc.), e suporta protocolos como OIDC, OAuth 2.0 e SAML 2.0.
+- ✓ Amplamente utilizada no mercado com grande número de contribuições pela comunidade.
+- ✓ Poder ser utilizada como container docker.
+
+**Trade-offs**
+
+- ✗ Falta de suporte de pronto atendimento.
+
+---
+
+## ADR-007 — Gateway de serviços
+
+**Contexto**  
+Todos os serviços oferecidos pela solução não devem estar diretamente expostos ao mundo exterior.
+
+**Decisão**  
+Adotar uso da solução **Kong Gateway OSS** como edge-gateway de serviços do projeto.
+
+**Justificativa**
+
+- ✓ Plataforma de gerenciamento de APIs open-source e nativa da nuvem.
+- ✓ Pode ser executado em containers (Docker/Kubernetes)
+- ✓ Amplamente utilizado por sua alta performance, escalabilidade e extensibilidade via plugins
+- ✓ Construído sobre o motor NGINX e utiliza a linguagem Lua para sua lógica de plugins.
+- ✓ Segurança e Autenticação: Controle de acesso, OAuth2, chaves de API e proteção contra ameaças.
+- ✓ Gerenciamento de Tráfego: Rate limiting (limite de requisições), balanceamento de carga e controle de picos de tráfego.
+- ✓ Transformação de Dados: Alteração de cabeçalhos e corpos de requisições/respostas "on-the-fly".
+- ✓ Suporte a conectividade de IA, centralizando o acesso a LLMs (Modelos de Linguagem Grande). 
+- ✓ Vasta documentação de apoio ao DevOps.
+- ✓ Plugin nativo para integração com KeyCloak.
+
+**Trade-offs**
+
+- ✗ Falta de suporte de pronto atendimento utilizando a versão OSS (free).
+
+---
 _Fim do documento._
