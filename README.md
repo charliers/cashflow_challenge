@@ -76,4 +76,15 @@ Um comerciante precisa controlar o seu fluxo de caixa diário com os lançamento
   - Capacidade organizacional de criar soluções reutilizáveis e flexíveis, reduzindo tempo e custo de novas iniciativas.
 
 ---
+
+## 4. Arquitetura de Soluções
+
+- [Blueprint](/doc/CashFlow_Challenge_Archi_v1-Blueprint.drawio.png)
+- [Diagrama C4 Model - System Context](/doc/CashFlow_Challenge_Archi_v1-C4_SystemContext.drawio.png)
+- [Diagrama C4 Model - Containeres](/doc/CashFlow_Challenge_Archi_v1-C4_Containeres.drawio.png)
+- [Descritivo de Custos Google Cloud](/doc/Google%20Cloud%20Estimate%20Summary.pdf)
+- [ADRs](/doc/ADR.md)
+- [API Design](/src/openapi_3_cashflow.yml)
+
+---
 _Fim do documento._
