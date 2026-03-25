@@ -21,6 +21,7 @@ Adotar **Google Cloud Spanner** como banco de dados principal do sistema.
 - ✓ Minimiza o trade-off clássico do **Teorema CAP**, oferecendo comportamento **CP** (consistência e tolerância a partições) com **disponibilidade próxima a AP**.  
 - ✓ Apresenta **custo inicial reduzido** em relação a PostgreSQL gerenciado para a **carga prevista** nesse projeto.  
 - ✓ Permite **escalabilidade automática** via **Processing Units**, simplificando o ajuste de capacidade para variações de carga.
+- ✓ Menor unidade de capacidade, 100 processing units, proverá **2.250 reads/s** e **350 writes/s** de capacidade de processamento
 
 **Trade-offs**
 
@@ -89,6 +90,7 @@ Adotar **GKE Standard** no lugar do **GKE Autopilot**, utilizando **Committed Us
 - ✓ O modelo de **Resource-based CUD** exige **node pools com machine type fixo**, o que se alinha ao uso de **c2-standard-4** para otimizar custo.  
 - ✓ **c2-standard-4** é otimizada para workloads **compute-intensive**, adequando-se às características do processamento do projeto.  
 - ✓ Uso de **Container-Optimized OS (cos_containerd)**, sem custo de licença, reduz custos e melhora segurança e desempenho para containers.
+- ✓ Versatilidade no controle de replicaSet e autoscalling das aplicações com base em métricas colhidas diretamente destas
 
 **Trade-offs**
 
