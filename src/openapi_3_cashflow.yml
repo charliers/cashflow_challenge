@@ -10,11 +10,11 @@ info:
     email: carlos.oliveira.ko@gmail.com
 
 servers:
-  - url: https://api.cashflow.com/cashflow
+  - url: https://api.cashflow.com
     description: Produção
-  - url: https://api-staging.cashflow.com/cashflow
+  - url: https://api-staging.cashflow.com
     description: Staging
-  - url: http://localhost/cashflow
+  - url: http://localhost
     description: Dev
 
 tags:
@@ -26,7 +26,7 @@ tags:
     description: Consulta de saldos consolidados por data
 
 paths:
-  /records:
+  /api/v1/cashflow/records:
     post:
       tags:
         - Records
@@ -127,8 +127,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
   # Nota: Validar se usar a PK da tabela nesse GET faz sentido, pois a pesquisa somente por ID deixa mais propenso a ataque de enumeração de registros, existe atenuante pelo modo utilizado para criar os IDs
-  #/records/{refDate}/{id}:
-  /records/{id}:
+  #/api/v1/cashflow/records/{refDate}/{id}:
+  /api/v1/cashflow/records/{id}:
     get:
       tags:
         - Records
@@ -155,7 +155,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /records/{refDate}/{id}/refund:
+  /api/v1/cashflow/records/{refDate}/{id}/refund:
     post:
       tags:
         - Refunds

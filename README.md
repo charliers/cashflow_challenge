@@ -81,7 +81,7 @@ Um comerciante precisa controlar o seu fluxo de caixa diário com os lançamento
 
 - [Blueprint](/doc/CashFlow_Challenge_Archi_v1-Blueprint.drawio.png)
 - [Diagrama C4 Model - System Context](/doc/CashFlow_Challenge_Archi_v1-C4_SystemContext.drawio.png)
-- [Diagrama C4 Model - Containeres](/doc/CashFlow_Challenge_Archi_v1-C4_Containeres.drawio.png)
+- [Diagrama C4 Model - Containers](/doc/CashFlow_Challenge_Archi_v1-C4_Containers.drawio.png)
 - [Descritivo de Custos Google Cloud](/doc/Google%20Cloud%20Estimate%20Summary.pdf)
 - [ADRs](/doc/ADR.md)
 - [API Design](/src/openapi_3_cashflow.yml)
