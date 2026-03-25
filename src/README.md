@@ -6,6 +6,7 @@ Estas aplicações representam à solução apresentada para o desafio **CashFlo
 - **Shell scripts** para provisionamento automatizado do ambiente local (emuladores Spanner e PubSub, criação do tópico e monitoramento de mensagens)
 - **Idempotência** nas chamadas de serviços transacionais
 - **Multi-tenant** (para permitir o reuso como SaaS, melhorando a rentabilidade através do rateio dos custos operacionais)
+- **CQRS** projeto foi criado com base neste pattern, porém para facilitar o desenvolvimento, endpoits de consulta ainda necessitam ser movidos do projeto **command** para projeto **query**
 
 Estes débitos serão sanados mesmo após o final do desafio para fins didáticos.
 
